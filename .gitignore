@@ -1,0 +1,14 @@
+
+*.class
+*.class
+build/web/WEB-INF/classes/ec/gob/arcom/dm/controllers/DerechoMineroController.class
+build/web/WEB-INF/classes/ec/gob/arcom/dm/daos/TitularMineroSB.class
+dist/DerechoMineroSRIWS.war
+dist/DerechoMineroMAEWS.war
+dist/DerechoMineroSRIWS.war
+build/web/WEB-INF/classes/ec/gob/arcom/dm/controllers/DerechoMineroController.class
+build/web/WEB-INF/classes/ec/gob/arcom/dm/daos/TitularMineroSB.class
+*.class
+*.class
+build/web/WEB-INF/jboss-web.xml
+dist/DerechoMineroSRIWS.war
