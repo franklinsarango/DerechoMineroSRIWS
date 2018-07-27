@@ -176,7 +176,7 @@ public class TitularMineroSB implements TitularMineroSBLocal {
         if (concesionesContratoOperacion != null) {
             for (ConcesionMinera concesion : concesionesContratoOperacion) {
                 ConcesionMineraWrapper cmw = generarCMWrapper(concesion);
-                cmw.setTipoDerechoMinero(cmw.getTipoDerechoMinero() + " | CONOTRATO OPERACION");
+                cmw.setTipoDerechoMinero(cmw.getTipoDerechoMinero() + " | CONTRATO OPERACION");
                 wrappers.add(cmw);
             }
         }

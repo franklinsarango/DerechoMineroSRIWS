@@ -5,12 +5,19 @@
  */
 package ec.gob.arcom.dm.controllers;
 
+import ec.gob.arcom.dm.daos.DerechoMineroMAEDAO;
 import ec.gob.arcom.dm.daos.DerechoMineroSBLocal;
 import ec.gob.arcom.dm.dtos.DerechoMineroDTO;
+import ec.gob.arcom.dm.dtos.DerechoMineroMAEDTO;
+import ec.gob.arcom.dm.util.Coordenadas;
+import ec.gob.arcom.dm.util.DerechoMinero;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ejb.EJB;
 
 /**
  *
- * @author mejiaw
+ * @author sarangof
  */
 public class DerechoMineroController {
     
@@ -38,6 +45,19 @@ public class DerechoMineroController {
             }
         }
         
+        return dmDTO;
+    }
+    
+    
+    public DerechoMineroMAEDTO buscarCodigoArcomMAE(String codigoArcom, DerechoMineroMAEDAO derechoMineroMAEDAO) {
+        DerechoMineroMAEDTO dmDTO= new DerechoMineroMAEDTO();
+        DerechoMinero d = new DerechoMinero();
+        List<Coordenadas> c = new ArrayList();
+        d = derechoMineroMAEDAO.concesionPorCodigo(codigoArcom);
+        c = derechoMineroMAEDAO.coordenadasPorCodigo(codigoArcom);
+        
+        dmDTO.setDerechoMinero(d);
+        dmDTO.setCoordenadas(c);
         return dmDTO;
     }
 }
