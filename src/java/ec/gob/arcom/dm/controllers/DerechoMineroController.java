@@ -51,13 +51,20 @@ public class DerechoMineroController {
     
     public DerechoMineroMAEDTO buscarCodigoArcomMAE(String codigoArcom, DerechoMineroMAEDAO derechoMineroMAEDAO) {
         DerechoMineroMAEDTO dmDTO= new DerechoMineroMAEDTO();
-        DerechoMinero d = new DerechoMinero();
-        List<Coordenadas> c = new ArrayList();
-        d = derechoMineroMAEDAO.concesionPorCodigo(codigoArcom);
-        c = derechoMineroMAEDAO.coordenadasPorCodigo(codigoArcom);
-        
-        dmDTO.setDerechoMinero(d);
-        dmDTO.setCoordenadas(c);
+        DerechoMinero concesion = derechoMineroMAEDAO.concesionPorCodigo(codigoArcom);
+                
+        if(concesion != null && concesion.getCodigoCatastral() != null) {
+            List<Coordenadas> coordConcesion = new ArrayList();
+            coordConcesion = derechoMineroMAEDAO.coordenadasConcesionPorCodigo(codigoArcom);                
+            dmDTO.setDerechoMinero(concesion);
+            dmDTO.setCoordenadas(coordConcesion);
+        } else {
+            DerechoMinero plantaBenefcio = derechoMineroMAEDAO.plantaBeneficioPorCodigo(codigoArcom);
+            List<Coordenadas> coordPlantaBenefcio = new ArrayList();
+            coordPlantaBenefcio = derechoMineroMAEDAO.coordenadasPlantaBeneficioPorCodigo(codigoArcom);                
+            dmDTO.setDerechoMinero(plantaBenefcio);
+            dmDTO.setCoordenadas(coordPlantaBenefcio);
+        }
         return dmDTO;
     }
 }

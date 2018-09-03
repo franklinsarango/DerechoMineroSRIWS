@@ -14,7 +14,9 @@ public class DerechoMinero {
     private String codigoCatastral;
     private String nombreDerechoMinero;
     private String titularDocumento;
-    private String titularNombre;
+    private String titularNombre;   
+    private String representanteLegalDocumento;
+    private String representanteLegalNombre;
     private String tipoDerechoMinero;
     private String regional;
     private String estado;
@@ -28,6 +30,10 @@ public class DerechoMinero {
     private String codigoCanton;
     private String parroquia;
     private String codigoParroquia;
+    private String mineral;
+    private String regimen;
+    private String materialInteres;
+    private String materialRecuperado;
     
     public String getNombreDerechoMinero() {
         return nombreDerechoMinero;
@@ -59,8 +65,24 @@ public class DerechoMinero {
 
     public void setTitularNombre(String titularNombre) {
         this.titularNombre = titularNombre;
+    }    
+
+    public String getRepresentanteLegalDocumento() {
+        return representanteLegalDocumento;
     }
 
+    public void setRepresentanteLegalDocumento(String representanteLegalDocumento) {
+        this.representanteLegalDocumento = representanteLegalDocumento;
+    }
+
+    public String getRepresentanteLegalNombre() {
+        return representanteLegalNombre;
+    }
+
+    public void setRepresentanteLegalNombre(String representanteLegalNombre) {
+        this.representanteLegalNombre = representanteLegalNombre;
+    }
+    
     public String getTipoDerechoMinero() {
         return tipoDerechoMinero;
     }
@@ -164,4 +186,37 @@ public class DerechoMinero {
     public void setParroquia(String parroquia) {
         this.parroquia = parroquia;
     }
+
+    public String getMineral() {
+        return mineral;
+    }
+
+    public void setMineral(String mineral) {
+        this.mineral = mineral;
+    }
+
+    public String getRegimen() {
+        return regimen;
+    }
+
+    public void setRegimen(String regimen) {
+        this.regimen = regimen;
+    }
+
+    public String getMaterialInteres() {
+        return materialInteres;
+    }
+
+    public void setMaterialInteres(String materialInteres) {
+        this.materialInteres = materialInteres;
+    }
+
+    public String getMaterialRecuperado() {
+        return materialRecuperado;
+    }
+
+    public void setMaterialRecuperado(String materialRecuperado) {
+        this.materialRecuperado = materialRecuperado;
+    }
+    
 }

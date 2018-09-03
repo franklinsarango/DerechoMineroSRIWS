@@ -48,13 +48,18 @@ public class DerechoMineroMAEDAOImpl implements DerechoMineroMAEDAO {
                     + "catmin.format_gmadigital(cm.nombre_concesion) as nombre_concesion,\n"
                     + "cm.documento_concesionario_principal AS titular_documento,\n"
                     + "case when p.apellido is null then catmin.format_gmadigital(p.nombre) else catmin.format_gmadigital(p.apellido || ' ' || p.nombre) end as titular_nombre,\n"
+                    + "p.documento_representante_legal as rep_legal_documento,\n"
+                    + "case when p.apellido_representante_legal is null then catmin.format_gmadigital(p.nombre_representante_legal) else catmin.format_gmadigital(p.apellido_representante_legal || ' ' || p.nombre_representante_legal) end as rep_legal_nombre,\n"
                     + "tm.nombre_tipo_mineria as tipo_solicitud,\n"
                     + "(select ciudad_regional from catmin.regional r, catmin.localidad_regional l where cm.codigo_provincia = l.codigo_localidad and r.codigo_regional = l.codigo_regional) as nombre_regional,\n"
                     + "(select case when est_.nombre in ('SUSPENDIDO','NO OTORGADO','EXTINGUIDO','CADUCADO','SOLICITUD EXPIRADA') then 'ARCHIVADA'\n"
-                    + "                else est_.nombre end) as estado_concesion,\n"
+                    + "else est_.nombre end) as estado_concesion,\n"
                     + "cm.fecha_inscribe as fecha_inscripcion,\n"
                     + "cm.plazo_concesion,\n"
+                    + "(select catmin.format_gmadigital(nombre) from catmin.catalogo_detalle where codigo_catalogo_detalle = cm.codigo_material_interes) as material_interes,        \n"
+                    + "(select catmin.format_gmadigital(nombre) from catmin.catalogo where codigo_catalogo = cm.codigo_tipo_material) as mineral,\n"
                     + "cm.numero_hectareas_concesion as superficie,\n"
+                    + "(select upper(nombre) from catmin.regimen where codigo_regimen = cm.codigo_regimen) as regimen,\n"
                     + "COALESCE((select nombre_fase from catmin.fase where codigo_fase = cm.codigo_fase),'') as fase,\n"
                     + "catmin.format_gmadigital(prov.nombre) as provincia,\n"
                     + "(select codigo_internacional from catmin.localidad where cm.codigo_provincia = codigo_localidad) as codigo_provincia,\n"
@@ -84,21 +89,25 @@ public class DerechoMineroMAEDAOImpl implements DerechoMineroMAEDAO {
                 mae.setNombreDerechoMinero(fila[1] != null ? fila[1].toString() : null);
                 mae.setTitularDocumento(fila[2] != null ? fila[2].toString() : null);
                 mae.setTitularNombre(fila[3] != null ? fila[3].toString() : null);
-                mae.setTipoDerechoMinero(fila[4] != null ? fila[4].toString() : null);
-                mae.setRegional(fila[5] != null ? fila[5].toString() : null);
-                mae.setEstado(fila[6] != null ? fila[6].toString() : null);
-                mae.setFechaInscripcion(fila[7] != null ? (fila[7].toString()) : null);
-                mae.setPlazo(fila[8] != null ? Long.valueOf(fila[8].toString()) : null);
-                mae.setSuperficie(fila[9] != null ? Double.valueOf(fila[9].toString()) : null);
-                mae.setFase(fila[10] != null ? fila[10].toString() : null);
-                mae.setProvincia(fila[11] != null ? fila[11].toString() : null);
-                mae.setCodigoProvincia(fila[12] != null ? fila[12].toString() : null);
-                mae.setCanton(fila[13] != null ? fila[13].toString() : null);
-                mae.setCodigoCanton(fila[14] != null ? fila[14].toString() : null);
-                mae.setParroquia(fila[15] != null ? fila[15].toString() : null);
-                mae.setCodigoParroquia(fila[16] != null ? fila[16].toString() : null);
-                
-                
+                mae.setRepresentanteLegalDocumento(fila[4] != null ? fila[4].toString() : null);
+                mae.setRepresentanteLegalNombre(fila[5] != null ? fila[5].toString() : null);
+                mae.setTipoDerechoMinero(fila[6] != null ? fila[6].toString() : null);
+                mae.setRegional(fila[7] != null ? fila[7].toString() : null);
+                mae.setEstado(fila[8] != null ? fila[8].toString() : null);
+                mae.setFechaInscripcion(fila[9] != null ? (fila[9].toString()) : null);
+                mae.setPlazo(fila[10] != null ? Long.valueOf(fila[10].toString()) : null);
+                mae.setMaterialInteres(fila[11] != null ? fila[11].toString() : null);
+                mae.setMineral(fila[12] != null ? fila[12].toString() : null);
+                mae.setSuperficie(fila[13] != null ? Double.valueOf(fila[13].toString()) : null);
+                mae.setRegimen(fila[14] != null ? fila[14].toString() : null);
+                mae.setFase(fila[15] != null ? fila[15].toString() : null);
+                mae.setProvincia(fila[16] != null ? fila[16].toString() : null);
+                mae.setCodigoProvincia(fila[17] != null ? fila[17].toString() : null);
+                mae.setCanton(fila[18] != null ? fila[18].toString() : null);
+                mae.setCodigoCanton(fila[19] != null ? fila[19].toString() : null);
+                mae.setParroquia(fila[20] != null ? fila[20].toString() : null);
+                mae.setCodigoParroquia(fila[21] != null ? fila[21].toString() : null);
+                mae.setMaterialRecuperado(null);    //SOLO APLICA PARA PLANTAS DE BENEFICIO                
             }
 
             return mae;
@@ -108,11 +117,83 @@ public class DerechoMineroMAEDAOImpl implements DerechoMineroMAEDAO {
         return null;
     }
 
+    @Override
+    public DerechoMinero plantaBeneficioPorCodigo(String codigoArcom) {
+        try {
+            String sql = "select \n"
+                    + "pb.codigo_arcom,\n"
+                    + "pb.nombre_planta_beneficio,\n"
+                    + "pb.numero_documento_representante_legal as titular_documento,\n"
+                    + "case when p.apellido is null then catmin.format_gmadigital(p.nombre) else catmin.format_gmadigital(p.apellido || ' ' || p.nombre) end as titular_nombre,\n"
+                    + "p.documento_representante_legal,\n"
+                    + "case when p.apellido_representante_legal is null then catmin.format_gmadigital(p.nombre_representante_legal) \n"
+                    + "        else catmin.format_gmadigital(p.apellido_representante_legal || ' ' || p.nombre_representante_legal) end as rep_legal_nombre,\n"
+                    + "(select nombre_tipo_mineria from catmin.tipo_mineria where nemonico_tipo_mineria = 'PLANBEN') as tipo_derecho_minero, \n"
+                    + "(select nombre_regional from catmin.regional r, catmin.localidad_regional l where pb.codigo_provincia = l.codigo_localidad and r.codigo_regional = l.codigo_regional) as nombre_regional,\n"
+                    + "(select cd.nombre from catmin.catalogo_detalle cd where cd.codigo_catalogo_detalle = pb.estado_planta) as estado,\n"
+                    + "pb.fecha_inscribe,\n"
+                    + "pb.plazo,\n"
+                    + "(select codigo_internacional from catmin.localidad where pb.codigo_provincia = codigo_localidad) as codigo_provincia,\n"
+                    + "(select l.nombre from catmin.localidad l where l.codigo_localidad = pb.codigo_provincia) as provincia,\n"
+                    + "(select codigo_internacional from catmin.localidad where pb.codigo_canton = codigo_localidad) as codigo_canton,\n"
+                    + "(select l.nombre from catmin.localidad l where l.codigo_localidad = pb.codigo_canton) as canton,\n"
+                    + "(select codigo_internacional from catmin.localidad where pb.codigo_parroquia = codigo_localidad) as codigo_parroquia,\n"
+                    + "(select l.nombre from catmin.localidad l where l.codigo_localidad = pb.codigo_parroquia) as parroquia\n"
+                    + "\n"
+                    + "from catmin.planta_beneficio pb, catmin.personas p\n"
+                    + "where pb.numero_documento_representante_legal = p.numero_documento\n"
+                    + "and pb.codigo_arcom = '" + codigoArcom + "' \n"
+                    + "and pb.estado_registro = true";                    
+
+            System.out.println("sql concesion: " + sql);
+
+            Query query = em.createNativeQuery(sql);
+
+            List<Object[]> listaTmp = query.getResultList();
+            
+            DerechoMinero mae = new DerechoMinero();
+
+            for (Object[] fila : listaTmp) {
+                mae.setCodigoCatastral(fila[0] != null ? fila[0].toString() : null);
+                mae.setNombreDerechoMinero(fila[1] != null ? fila[1].toString() : null);
+                mae.setTitularDocumento(fila[2] != null ? fila[2].toString() : null);
+                mae.setTitularNombre(fila[3] != null ? fila[3].toString() : null);
+                mae.setRepresentanteLegalDocumento(fila[4] != null ? fila[4].toString() : null);
+                mae.setRepresentanteLegalNombre(fila[5] != null ? fila[5].toString() : null);
+                mae.setTipoDerechoMinero(fila[6] != null ? fila[6].toString() : null);
+                mae.setRegional(fila[7] != null ? fila[7].toString() : null);
+                mae.setEstado(fila[8] != null ? fila[8].toString() : null);
+                mae.setFechaInscripcion(fila[9] != null ? (fila[9].toString()) : null);
+                mae.setPlazo(fila[10] != null ? Long.valueOf(fila[10].toString()) : null);                
+                mae.setProvincia(fila[11] != null ? fila[11].toString() : null);
+                mae.setCodigoProvincia(fila[12] != null ? fila[12].toString() : null);
+                mae.setCanton(fila[13] != null ? fila[13].toString() : null);
+                mae.setCodigoCanton(fila[14] != null ? fila[14].toString() : null);
+                mae.setParroquia(fila[15] != null ? fila[15].toString() : null);
+                mae.setCodigoParroquia(fila[16] != null ? fila[16].toString() : null);
+                mae.setSuperficie(Double.valueOf("-1"));    //SE ENVIA -1 HASTA TENER EL CAMPO EN EL SGM                
+                mae.setMaterialRecuperado("-1");            //SE ENVIA -1 HASTA TENER EL CAMPO EN EL SGM               
+                mae.setMaterialInteres(null);   //NO EXISTE EN PLANTA DE BENEFICIO
+                mae.setMineral(null);           //NO EXISTE EN PLANTA DE BENEFICIO
+                mae.setRegimen(null);           //NO EXISTE EN PLANTA DE BENEFICIO
+                mae.setFase(null);              //NO EXISTE EN PLANTA DE BENEFICIO
+                
+            }
+
+            return mae;
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+        return null;
+    }
     
     @Override
-    public List<Coordenadas> coordenadasPorCodigo(String codigoArcom) {
+    public List<Coordenadas> coordenadasConcesionPorCodigo(String codigoArcom) {
         try {
-            String sql = "select ca.numero_coordenada, ca.utm_este, ca.utm_norte \n"
+            String sql = "select ca.numero_coordenada, ca.utm_este, ca.utm_norte,\n"
+                    + "(select nombre from catmin.catalogo_detalle where codigo_catalogo_detalle = cm.codigo_zona) as zona,\n"   
+                    + "case when numero_coordenada = '0' then 'INICIAL' else null end as punto_inicial\n"
+                    + "\n"
                     + "from catmin.concesion_minera cm, catmin.area_minera a, catmin.coordenada_area ca\n"
                     + "where cm.codigo_arcom = '" + codigoArcom + "'\n"
                     + "and cm.codigo_concesion = a.codigo_concesion \n"
@@ -121,7 +202,7 @@ public class DerechoMineroMAEDAOImpl implements DerechoMineroMAEDAO {
                     + "and a.codigo_area_minera = ca.codigo_area\n"
                     + "and ca.estado_registro = true";
 
-            System.out.println("sql concesion: " + sql);
+            System.out.println("sql coordConcesion: " + sql);
 
             Query query = em.createNativeQuery(sql);
 
@@ -134,11 +215,57 @@ public class DerechoMineroMAEDAOImpl implements DerechoMineroMAEDAO {
                 c.setNumero(fila[0] != null ? fila[0].toString() : null);
                 c.setUtmEste(fila[1] != null ? fila[1].toString() : null);
                 c.setUtmNorte(fila[2] != null ? fila[2].toString() : null);
-                
+                c.setZona(fila[3] != null ? fila[3].toString() : null);                
+                c.setTipoCoordenada(fila[4] != null ? fila[4].toString() : null);
+                c.setTipoArea("POLIGONO");
                 lista.add(c);
             }
 
             return lista;
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+        return null;
+    }
+    
+    @Override
+    public List<Coordenadas> coordenadasPlantaBeneficioPorCodigo(String codigoArcom) {
+        try {
+            String sql = "select cp.numero_coordenada, cp.utm_este, cp.utm_norte,\n"
+                    + "(select nombre from catmin.catalogo_detalle where codigo_catalogo = 2 and valor = pb.zona) as zona,\n"
+                    + "case when numero_coordenada = '0' then 'INICIAL' else null end as punto_inicial\n"
+                    + "\n"
+                    + "from catmin.planta_beneficio pb, catmin.coordenada_planta cp\n"
+                    + "where pb.codigo_arcom = '" + codigoArcom + "'\n"
+                    + "and pb.codigo_planta_beneficio = cp.codigo_planta\n"
+                    + "and pb.estado_registro = true\n"
+                    + "and cp.estado_registro = true";
+
+            System.out.println("sql coordConcesion: " + sql);
+
+            Query query = em.createNativeQuery(sql);
+
+            List<Object[]> listaTmp = query.getResultList();
+            
+            List<Coordenadas> lista = new ArrayList();                              
+
+            for (Object[] fila : listaTmp) {
+                Coordenadas c = new Coordenadas();
+                c.setNumero(fila[0] != null ? fila[0].toString() : null);
+                c.setUtmEste(fila[1] != null ? fila[1].toString() : null);
+                c.setUtmNorte(fila[2] != null ? fila[2].toString() : null);
+                c.setZona(fila[3] != null ? fila[3].toString() : null);                
+                c.setTipoCoordenada(fila[4] != null ? fila[4].toString() : null);
+                c.setTipoArea("POLIGONO");
+                lista.add(c);
+            }
+            
+            if(lista != null && lista.size() > 3) {
+                return lista;
+            } else {
+                List<Coordenadas> listaVacia = new ArrayList();
+                return listaVacia;
+            }
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }

@@ -13,7 +13,10 @@ package ec.gob.arcom.dm.util;
 public class Coordenadas {
     private String numero;
     private String utmEste;
-    private String utmNorte;    
+    private String utmNorte;  
+    private String zona;
+    private String tipoArea;
+    private String tipoCoordenada;  
 
     public String getNumero() {
         return numero;
@@ -38,6 +41,29 @@ public class Coordenadas {
     public void setUtmNorte(String utmNorte) {
         this.utmNorte = utmNorte;
     }
-    
-    
+
+    public String getZona() {
+        return zona;
+    }
+
+    public void setZona(String zona) {
+        this.zona = zona;
+    }
+
+    public String getTipoArea() {
+        return tipoArea;
+    }
+
+    public void setTipoArea(String tipoArea) {
+        this.tipoArea = tipoArea;
+    }
+
+    public String getTipoCoordenada() {
+        return tipoCoordenada;
+    }
+
+    public void setTipoCoordenada(String tipoCoordenada) {
+        this.tipoCoordenada = tipoCoordenada;
+    }
+        
 }

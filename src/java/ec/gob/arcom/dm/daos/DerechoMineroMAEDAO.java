@@ -19,8 +19,11 @@ import javax.ejb.Local;
 @Local
 public interface DerechoMineroMAEDAO {
 
-    DerechoMinero concesionPorCodigo(String codigoArcom);    
+    DerechoMinero concesionPorCodigo(String codigoArcom);  
     
-    List<Coordenadas> coordenadasPorCodigo(String codigoArcom);    
+    DerechoMinero plantaBeneficioPorCodigo(String codigoArcom);  
     
+    List<Coordenadas> coordenadasConcesionPorCodigo(String codigoArcom);    
+    
+    List<Coordenadas> coordenadasPlantaBeneficioPorCodigo(String codigoArcom);    
 }
