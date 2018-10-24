@@ -5,8 +5,10 @@
  */
 package ec.gob.arcom.dm.controllers;
 
+import ec.gob.arcom.dm.daos.DerechoMineroARCHDAO;
 import ec.gob.arcom.dm.daos.DerechoMineroMAEDAO;
 import ec.gob.arcom.dm.daos.DerechoMineroSBLocal;
+import ec.gob.arcom.dm.dtos.DerechoMineroARCHDTO;
 import ec.gob.arcom.dm.dtos.DerechoMineroDTO;
 import ec.gob.arcom.dm.dtos.DerechoMineroMAEDTO;
 import ec.gob.arcom.dm.util.Coordenadas;
@@ -65,6 +67,34 @@ public class DerechoMineroController {
             dmDTO.setDerechoMinero(plantaBenefcio);
             dmDTO.setCoordenadas(coordPlantaBenefcio);
         }
+        return dmDTO;
+    }
+    
+    public DerechoMineroARCHDTO buscarPorDocumentoARCH(String documento, DerechoMineroARCHDAO derechoMineroARCHDAO) {
+        DerechoMineroARCHDTO dmDTO= new DerechoMineroARCHDTO();
+        List<DerechoMinero> lista = new ArrayList();
+        dmDTO.setDerechoMinero(lista);
+        
+        List<DerechoMinero> concesiones = derechoMineroARCHDAO.concesionPorDocumento(documento);                 
+        for(DerechoMinero d: concesiones){
+            dmDTO.getDerechoMinero().add(d);
+        }
+        
+        List<DerechoMinero> cotitulares = derechoMineroARCHDAO.concesionesCotitular(documento);                 
+        for(DerechoMinero d: cotitulares){
+            dmDTO.getDerechoMinero().add(d);
+        }
+        
+        List<DerechoMinero> contratos = derechoMineroARCHDAO.concesionesContratoOperacion(documento);                 
+        for(DerechoMinero d: contratos){
+            dmDTO.getDerechoMinero().add(d);
+        }
+        
+        List<DerechoMinero> plantaBeneficio = derechoMineroARCHDAO.plantaBeneficioPorDocumento(documento);                         
+        for(DerechoMinero d: plantaBeneficio){
+            dmDTO.getDerechoMinero().add(d);
+        }
+        
         return dmDTO;
     }
 }
